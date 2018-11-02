@@ -6,7 +6,10 @@
 class IBroadPhase
 {
 public:
+	virtual ~IBroadPhase() {}
 	virtual void GetCollidingPairsToCheck(std::vector<SPolygonPair>& pairsToCheck) = 0;
+	virtual void Init() = 0;
+	virtual void DrawGizmos() = 0;
 };
 
 #endif

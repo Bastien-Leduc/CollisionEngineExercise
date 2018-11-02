@@ -11,9 +11,6 @@ class IBroadPhase;
 
 class CPhysicEngine
 {
-
-
-
 public:
 	void	Reset();
 	void	Activate(bool active);
@@ -21,6 +18,9 @@ public:
 	void	DetectCollisions();
 
 	void	Step(float deltaTime);
+
+	void InitBroadPhase();
+	IBroadPhase* GetBroadPhase() const;
 
 	template<typename TFunctor>
 	void	ForEachCollision(TFunctor functor)

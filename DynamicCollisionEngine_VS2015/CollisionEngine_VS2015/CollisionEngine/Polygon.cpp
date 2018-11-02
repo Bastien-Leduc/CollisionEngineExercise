@@ -112,18 +112,21 @@ bool	CPolygon::IsLineIntersectingPolygon(const Line& line, Vec2& colPoint, float
 
 bool	CPolygon::CheckCollision(const CPolygon& poly, SCollision& collision) const
 {
+	collision.distance = FLT_MAX;
+	if (SatCollisionChecker(poly, collision.point, collision.normal, collision.distance, true))
+		return poly.SatCollisionChecker(*this, collision.point, collision.normal, collision.distance, false);
 	return false;
 }
 
 
-void CPolygon::UpdateAABB()
-{
-	aabb.Center(position);
-	for (const Vec2& point : points)
-	{
-		aabb.Extend(TransformPoint(point));
-	}
-}
+//void CPolygon::UpdateAABB()
+//{
+//	aabb.Center(position);
+//	for (const Vec2& point : points)
+//	{
+//		aabb.Extend(TransformPoint(point));
+//	}
+//}
 
 float CPolygon::GetMass() const
 {
@@ -194,6 +197,113 @@ void CPolygon::BuildLines()
 
 		m_lines.push_back(Line(pointB, lineDir, (pointA - pointB).GetLength()));
 	}
+}
+
+bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 & colNormal, float & colDist, bool receiver) const
+{
+	const size_t ShapeAMaxEdge = points.size();
+	for (int ShapeANormalIndex = 0; ShapeANormalIndex < ShapeAMaxEdge; ++ShapeANormalIndex)
+	{
+		const Vec2 p1 = TransformPoint(points[ShapeANormalIndex]);
+		const Vec2 p2 = TransformPoint(points[(ShapeANormalIndex + 1) % ShapeAMaxEdge]);
+		Vec2 penPointA, penPointB;
+		Vec2 direction = (p2 - p1).Normalized();
+		const Vec2 normal = direction.GetNormal();
+
+
+		Line projectionLine(p1, normal);
+
+		Line firstSegment(p1, direction);
+
+
+		float shapeAMinDistance = 0;
+		float shapeAMaxDistance = shapeAMinDistance;
+
+		for (int shapeAPointIndex = 0; shapeAPointIndex < ShapeAMaxEdge; ++shapeAPointIndex)
+		{
+			const Vec2 worldPoint = TransformPoint(points[shapeAPointIndex]);
+
+			const Vec2 temp = projectionLine.Project(worldPoint);
+
+			const float tempDistance = firstSegment.GetPointDist(temp);
+
+
+			if (tempDistance > shapeAMaxDistance)
+			{
+				shapeAMaxDistance = tempDistance;
+				penPointA = worldPoint;
+			}
+			else if (tempDistance < shapeAMinDistance) shapeAMinDistance = tempDistance;
+
+		}
+
+
+		const size_t shapeBMaxEdge = poly.points.size();
+
+		float shapeBMinDistance = 0;
+		float shapeBMaxDistance = shapeBMinDistance;
+
+		for (int shapeBPointIndex = 0; shapeBPointIndex < shapeBMaxEdge; ++shapeBPointIndex)
+		{
+			const Vec2 worldPoint = poly.TransformPoint(poly.points[shapeBPointIndex]);
+
+			const Vec2 temp = projectionLine.Project(worldPoint);
+
+			const float tempDistance = firstSegment.GetPointDist(temp);
+
+			if (shapeBPointIndex == 0)
+			{
+				shapeBMinDistance = shapeBMaxDistance = tempDistance;
+				penPointB = worldPoint;
+			}
+			else if (tempDistance > shapeBMaxDistance)
+			{
+				shapeBMaxDistance = tempDistance;
+				penPointB = worldPoint;
+			}
+			else if (tempDistance < shapeBMinDistance) shapeBMinDistance = tempDistance;
+		}
+
+		const float penA = shapeAMaxDistance - shapeBMinDistance;
+		const float penB = shapeBMaxDistance - shapeAMinDistance;
+
+		if (penA <= 0 || penB <= 0) return false;
+
+		const float finalPen = Min(penA, penB);
+		if (finalPen < colDist)
+		{
+			colDist = finalPen;
+
+			if (shapeAMaxDistance < shapeBMaxDistance)
+			{
+				if (receiver)
+				{
+					colPoint = penPointA - (normal * finalPen);
+					colNormal = normal;
+				}
+				else
+				{
+					colNormal = normal * -1;
+					colPoint = penPointA;
+				}
+			}
+			else
+			{
+				if (receiver)
+				{
+					colPoint = penPointB;
+
+					colNormal = normal * -1;
+				}
+				else
+				{
+					colNormal = normal;
+					colPoint = penPointB - (normal * finalPen);
+				}
+			}
+		}
+	}
+	return true;
 }
 
 void CPolygon::ComputeArea()

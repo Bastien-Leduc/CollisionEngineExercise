@@ -4,8 +4,6 @@
 #include <GL/glew.h>
 #include <vector>
 #include <memory>
-
-
 #include "Maths.h"
 
 
@@ -23,7 +21,7 @@ public:
 	Vec2				position;
 	Mat2				rotation;
 	std::vector<Vec2>	points;
-	AABB				aabb;
+	//AABB				aabb;
 
 	void				Build();
 	void				Draw();
@@ -46,7 +44,7 @@ public:
 
 
 
-	void				UpdateAABB();
+//	void				UpdateAABB();
 
 	float				GetMass() const;
 	float				GetInertiaTensor() const;
@@ -69,6 +67,8 @@ private:
 	void				DestroyBuffers();
 
 	void				BuildLines();
+
+	bool				SatCollisionChecker(const CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist, bool receiver) const;
 
 	void				ComputeArea();
 	void				RecenterOnCenterOfMass(); // Area must be computed

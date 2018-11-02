@@ -14,6 +14,8 @@
 #include "World.h"
 
 #include "drawtext.h"
+#include "BroadPhase.h"
+
 
 CRenderer::CRenderer(float worldHeight)
 	: m_worldHeight(worldHeight), m_lastFPS(0.0f), m_lastFPSSince(0.0f), m_textCursor(0), m_FPS(FPS::Unlocked)
@@ -144,6 +146,8 @@ void CRenderer::Update()
 
 	RenderTexts();
 
+	RenderGizmos();
+
 	UpdateLockFPS();
 }
 
@@ -203,6 +207,7 @@ void  CRenderer::RenderPolygons()
 	if (gVars->pWorld)
 	{
 		gVars->pWorld->RenderPolygons();
+		RenderGizmos();
 	}
 
 	glPopMatrix();
@@ -237,6 +242,14 @@ void  CRenderer::RenderTexts()
 
 	m_renderTexts.clear();
 	m_textCursor = 0;
+}
+
+void CRenderer::RenderGizmos()
+{
+	if (!gVars->bDebug) return;
+
+	gVars->pPhysicEngine->GetBroadPhase()->DrawGizmos();
+	
 }
 
 void  CRenderer::UpdateLockFPS()

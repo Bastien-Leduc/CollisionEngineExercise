@@ -54,6 +54,7 @@ private:
 	void	UpdateWorld(float frameTime);
 	void	RenderPolygons();
 	void	RenderTexts();
+	void	RenderGizmos();
 	void	UpdateLockFPS();
 
 	float	UpdateFrameTime();

@@ -223,6 +223,8 @@ struct Line
 
 	Line() = default;
 	Line(Vec2 _point, Vec2 _dir, float _length) : point(_point), dir(_dir), length(_length){}
+	Line(Vec2 _point, Vec2 _dir) : point(_point), dir(_dir) { length = 3.402823466e+38F; }
+
 
 	Vec2	GetNormal() const
 	{
@@ -272,27 +274,27 @@ struct Line
 	}
 };
 
-struct AABB
-{
-	Vec2 min, max;
-
-	void Center(const Vec2& point)
-	{
-		min = max = point;
-	}
-
-	void Extend(const Vec2& point)
-	{
-		min = minv(min, point);
-		max = maxv(max, point);
-	}
-
-	bool Intersect(const AABB& aabb)
-	{
-		bool separateAxis = (min.x > aabb.max.x) || (min.y > aabb.max.y) || (aabb.min.x > max.x) || (aabb.min.y > max.y);
-		return !separateAxis;
-	}
-};
+//struct AABB
+//{
+//	Vec2 min, max;
+//
+//	void Center(const Vec2& point)
+//	{
+//		min = max = point;
+//	}
+//
+//	void Extend(const Vec2& point)
+//	{
+//		min = minv(min, point);
+//		max = maxv(max, point);
+//	}
+//
+//	bool Intersect(const AABB& aabb)
+//	{
+//		bool separateAxis = (min.x > aabb.max.x) || (min.y > aabb.max.y) || (aabb.min.x > max.x) || (aabb.min.y > max.y);
+//		return !separateAxis;
+//	}
+//};
 
 // 2D Analytic LCP solver (find exact solution)
 bool Solve2DLCP(const Mat2& A, const Mat2& invA, const Vec2& b, Vec2& x);

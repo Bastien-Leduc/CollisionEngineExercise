@@ -9,6 +9,8 @@
 
 #include "BroadPhase.h"
 #include "BroadPhaseBrut.h"
+#include "CBroadPhaseAABBTree.h"
+
 
 
 void	CPhysicEngine::Reset()
@@ -18,7 +20,9 @@ void	CPhysicEngine::Reset()
 
 	m_active = true;
 
-	m_broadPhase = new CBroadPhaseBrut;
+	delete m_broadPhase;
+	m_broadPhase = new CBroadPhaseAABBTree();
+	//pBroadPhase = m_broadPhase;
 }
 
 void	CPhysicEngine::Activate(bool active)
@@ -72,6 +76,16 @@ void	CPhysicEngine::Step(float deltaTime)
 	});
 
 	DetectCollisions();
+}
+
+void CPhysicEngine::InitBroadPhase()
+{
+	m_broadPhase->Init();
+}
+
+IBroadPhase* CPhysicEngine::GetBroadPhase() const
+{
+	return m_broadPhase;
 }
 
 void	CPhysicEngine::CollisionBroadPhase()
