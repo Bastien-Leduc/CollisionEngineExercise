@@ -5,5 +5,16 @@ class CBasicBehavior : public CBehavior
 public:
 	CBasicBehavior();
 	virtual ~CBasicBehavior();
+
+	virtual void Start() override;
+	virtual void Update(float frameTime);
+
+private:
+
+	void ApplyGravity(CPolygonPtr poly, float frameTime);
+	float ApplyCollisionResponse(const SCollision& collision);
+	void ApplyFriction(const SCollision& collision, float impulse);
+
+	std::vector<CPolygonPtr> m_shapes;
 };
 

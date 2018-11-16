@@ -2,6 +2,7 @@
 #define _SCENE_SMALL_PHYSIC_H_
 
 #include "BaseScene.h"
+#include "CBasicBehavior.h"
 #include "GlobalVariables.h"
 
 
@@ -36,7 +37,7 @@ private:
 		circle->speed.y = 0.0f * m_scale;
 		circle->density = 0.1f;
 
-		gVars->pWorld->AddBehavior<CSimplePolygonBounce>(nullptr);
+		gVars->pWorld->AddBehavior<CBasicBehavior>(nullptr);
 		//gVars->pPhysicEngine->Activate(true);
 
 	}

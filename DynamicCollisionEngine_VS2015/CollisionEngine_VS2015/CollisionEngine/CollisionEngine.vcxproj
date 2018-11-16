@@ -100,6 +100,7 @@
     <ClInclude Include="Behaviors\SphereSimulation.h" />
     <ClInclude Include="BroadPhase.h" />
     <ClInclude Include="BroadPhaseBrut.h" />
+    <ClInclude Include="CBasicBehavior.h" />
     <ClInclude Include="CBroadPhaseAABBTree.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="GlobalVariables.h" />
@@ -123,6 +124,7 @@
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="AABBTreeNode.cpp" />
+    <ClCompile Include="CBasicBehavior.cpp" />
     <ClCompile Include="CBroadPhaseAABBTree.cpp" />
     <ClCompile Include="InertiaTensor.cpp" />
     <ClCompile Include="main.cpp" />

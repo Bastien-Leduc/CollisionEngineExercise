@@ -120,8 +120,8 @@ struct Vec2
 	void	Normalize()
 	{
 		float length = GetLength();
-		x /= length;
-		y /= length;
+		x /= (length == 0 ? 1 : length);
+		y /= (length == 0 ? 1 : length);
 	}
 
 	Vec2	Normalized() const
