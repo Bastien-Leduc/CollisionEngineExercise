@@ -20,9 +20,17 @@ public:
 private:
 	virtual void Update(float frameTime) override
 	{
-		gVars->pPhysicEngine->Activate(false);
+		gVars->pPhysicEngine->Activate(true);
 
+		SCollision collision;
 
+		if (polyA->CheckCollision(*polyB, collision))
+		{
+			gVars->pRenderer->DisplayTextWorld("collision point", collision.point);
+			gVars->pRenderer->DisplayText("Collision distance : " + std::to_string(collision.distance), 50, 50);
+
+			gVars->pRenderer->DrawLine(collision.point, collision.point + collision.normal * collision.distance, 0.0f, 1.0f, 0.0f);
+		}
 	}
 };
 

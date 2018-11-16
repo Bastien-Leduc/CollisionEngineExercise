@@ -2,6 +2,7 @@
 #define _SCENE_SIMPLE_PHYSIC_H_
 
 #include "BaseScene.h"
+#include "CBasicBehavior.h"
 
 
 class CSceneSimplePhysic: public CBaseScene
@@ -35,6 +36,7 @@ private:
 		tri->density *= 5.0f;
 		//
 		gVars->pWorld->AddSymetricPolygon(coeff * 10.0f, 50)->position = Vec2(-coeff * 20.0f, coeff * 5.0f);
+		gVars->pWorld->AddBehavior<CBasicBehavior>(nullptr);
 	}
 
 	float m_scale;

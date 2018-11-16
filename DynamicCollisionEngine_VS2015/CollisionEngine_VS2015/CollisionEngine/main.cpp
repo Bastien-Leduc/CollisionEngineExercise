@@ -36,6 +36,8 @@ int _tmain(int argc, char** argv)
 	gVars->pSceneManager->AddScene(new CSceneSmallPhysic());
 	gVars->pSceneManager->AddScene(new CSceneSimplePhysic());
 	gVars->pSceneManager->AddScene(new CSceneComplexPhysic(25));
+	gVars->pSceneManager->AddScene(new CSceneDebugCollisions);
+
 
 
 

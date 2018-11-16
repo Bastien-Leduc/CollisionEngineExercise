@@ -2,6 +2,7 @@
 #define _SCENE_COMPLEX_PHYSIC_H_
 
 #include "BaseScene.h"
+#include "CBasicBehavior.h"
 
 
 class CSceneComplexPhysic : public CBaseScene
@@ -31,6 +32,7 @@ private:
 		{
 			gVars->pWorld->AddRandomPoly(params);
 		}
+		gVars->pWorld->AddBehavior<CBasicBehavior>(nullptr);
 
 	}
 

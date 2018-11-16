@@ -4,7 +4,7 @@
 #include "GlobalVariables.h"
 #include "World.h"
 
-#define BOUNCINESS 1.f
+#define BOUNCINESS 0.f
 #define FRICTION 0.f
 
 CBasicBehavior::CBasicBehavior()
@@ -53,7 +53,9 @@ float CBasicBehavior::ApplyCollisionResponse(const SCollision & collision)
 	
 	impulse = (-(BOUNCINESS + 1.f) * relativeSpeed) / polyInvMass;
 
-	float damping = 1.f;
+	if (impulse < 0) return 0;
+
+	float damping = 0.5f;
 	float correction = (collision.distance * damping) / polyInvMass;
 
 	collision.polyA->speed -= collision.normal * (impulse * polyAInvMass);
