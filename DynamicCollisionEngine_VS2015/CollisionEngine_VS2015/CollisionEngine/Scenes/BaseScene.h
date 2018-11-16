@@ -30,8 +30,8 @@ protected:
 	{
 		CPolygonPtr poly;
 
-		float halfWidth = gVars->pRenderer->GetWorldWidth() * 0.5f;
-		float halfHeight = gVars->pRenderer->GetWorldHeight() * 0.5f;
+		float halfWidth = gVars->pRenderer->GetWorldWidth() * 0.48f;
+		float halfHeight = gVars->pRenderer->GetWorldHeight() * 0.48f;
 
 		poly = gVars->pWorld->AddRectangle(halfWidth * 2.0f, m_borderSize);
 		poly->position.y = -halfHeight + 0.5f * m_borderSize;

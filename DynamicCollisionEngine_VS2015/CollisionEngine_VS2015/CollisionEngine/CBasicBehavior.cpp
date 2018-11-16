@@ -4,10 +4,7 @@
 #include "GlobalVariables.h"
 #include "World.h"
 
-#define GRAVITY 9.f
-#define DECELERATION 0.3f
-
-#define BOUNCINESS 0.0f
+#define BOUNCINESS 1.f
 #define FRICTION 0.f
 
 CBasicBehavior::CBasicBehavior()
@@ -27,23 +24,11 @@ void CBasicBehavior::Start()
 
 void CBasicBehavior::Update(float frameTime)
 {
-	gVars->pWorld->ForEachPolygon([&](CPolygonPtr poly) 
-	{
-		ApplyGravity(poly, frameTime);
-	});
-
 	gVars->pPhysicEngine->ForEachCollision([&](const SCollision& collision)
 	{
 		float lastImpulse = ApplyCollisionResponse(collision);
 		ApplyFriction(collision, lastImpulse);
 	});
-}
-
-void CBasicBehavior::ApplyGravity(CPolygonPtr poly, float frameTime)
-{
-	if (poly->GetMass() == 0) return;
-	/*poly->speed.y -= GRAVITY * frameTime;
-	poly->speed -= poly->speed * DECELERATION * frameTime;*/
 }
 
 float CBasicBehavior::ApplyCollisionResponse(const SCollision & collision)
@@ -53,19 +38,29 @@ float CBasicBehavior::ApplyCollisionResponse(const SCollision & collision)
 
 	Vec2 diffspeed = polyB->speed - polyA->speed;
 
+	float relativeSpeed = (diffspeed | collision.normal);
+	if (relativeSpeed > 0) return 0;
+
 	float polyAMass = polyA->GetMass();
 	float polyBMass = polyB->GetMass();
 
+	float polyAInvMass = polyAMass == 0 ? 0.f : 1.f / polyAMass;
+	float polyBInvMass = polyBMass == 0 ? 0.f : 1.f / polyBMass;
+
+	float polyInvMass = (polyAInvMass + polyBInvMass) == 0 ? 1.f : (polyAInvMass + polyBInvMass);
+
 	float impulse;
 	
-	impulse = (-(BOUNCINESS + 1.f) * (diffspeed | collision.normal)) / ((1.f / polyAMass) + (1.f / polyBMass));
+	impulse = (-(BOUNCINESS + 1.f) * relativeSpeed) / polyInvMass;
 
-	collision.polyA->speed -= collision.normal * (impulse / polyAMass);
-	collision.polyA->position -= collision.normal * (collision.distance * 0.5f);
+	float damping = 1.f;
+	float correction = (collision.distance * damping) / polyInvMass;
 
-	collision.polyB->speed += collision.normal * (impulse / polyBMass);
-	collision.polyB->position += collision.normal * (collision.distance * 0.5f);
+	collision.polyA->speed -= collision.normal * (impulse * polyAInvMass);
+	collision.polyA->position -= collision.normal * correction * polyAInvMass;
 
+	collision.polyB->speed += collision.normal * (impulse * polyBInvMass);
+	collision.polyB->position += collision.normal * correction * polyBInvMass;
 
 	return impulse;
 }
@@ -77,18 +72,26 @@ void CBasicBehavior::ApplyFriction(const SCollision& collision, float impulse)
 
 	Vec2 diffspeed = polyB->speed - polyA->speed;
 
+	float relativeSpeed = (diffspeed | collision.normal);
+
 	float polyAMass = polyA->GetMass();
 	float polyBMass = polyB->GetMass();
 
-	Vec2 tan = diffspeed - (collision.normal * (diffspeed | collision.normal));
+	float polyAInvMass = polyAMass == 0 ? 0.f : 1.f / polyAMass;
+	float polyBInvMass = polyBMass == 0 ? 0.f : 1.f / polyBMass;
+
+	float polyInvMass = (polyAInvMass + polyBInvMass) == 0 ? 1.f : (polyAInvMass + polyBInvMass);
+
+
+	Vec2 tan = diffspeed - (collision.normal * relativeSpeed);
 	tan.Normalize();
 	float coeffFric = diffspeed | tan;
 
 	float impulseFric;
-	impulseFric = -coeffFric / ((1 / polyAMass) + (1 / polyBMass));
+	impulseFric = -coeffFric / polyInvMass;
 
 	impulseFric = Clamp(impulseFric, -abs(impulse) * FRICTION, abs(impulse) * FRICTION);
 
-	collision.polyA->speed -= tan * (1 / polyAMass) * impulseFric;
-	collision.polyB->speed += tan * (1 / polyBMass) * impulseFric;
+	collision.polyA->speed -= tan * polyAInvMass * impulseFric;
+	collision.polyB->speed += tan * polyBInvMass * impulseFric;
 }

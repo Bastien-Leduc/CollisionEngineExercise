@@ -25,7 +25,7 @@ private:
 			{
 				CPolygonPtr p = gVars->pWorld->AddSquare(size * m_scale);
 				p->position = start - Vec2(i * m_scale, -j * m_scale) * size /*+ Vec2(Random(-0.01f, 0.01f), Random(-0.01f, 0.01f)) * m_scale*/;
-				p->density = (i == 0 && j == 0) ? 0 : p->density;
+				p->density = 0.1f;
 			}
 		}		
 		

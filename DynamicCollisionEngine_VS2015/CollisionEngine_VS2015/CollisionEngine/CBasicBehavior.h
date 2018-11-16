@@ -11,7 +11,6 @@ public:
 
 private:
 
-	void ApplyGravity(CPolygonPtr poly, float frameTime);
 	float ApplyCollisionResponse(const SCollision& collision);
 	void ApplyFriction(const SCollision& collision, float impulse);
 
