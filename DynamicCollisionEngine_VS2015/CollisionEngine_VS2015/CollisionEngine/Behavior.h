@@ -18,6 +18,8 @@ public:
 	virtual void Start(){}
 	virtual void Update(float frameTime){}
 
+	virtual void DrawGizmos() {}
+
 private:
 	size_t	m_index = 0;
 };

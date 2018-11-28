@@ -248,7 +248,8 @@ void CRenderer::RenderGizmos()
 {
 	if (!gVars->bDebug) return;
 
-	gVars->pPhysicEngine->GetBroadPhase()->DrawGizmos();
+	//gVars->pPhysicEngine->GetBroadPhase()->DrawGizmos();
+	gVars->pWorld->ForEachBehavior([&](CBehaviorPtr behavior) {behavior->DrawGizmos();});
 	
 }
 

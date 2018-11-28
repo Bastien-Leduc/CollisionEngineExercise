@@ -207,7 +207,7 @@ void CPolygon::BuildLines()
 bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 & colNormal, float & colDist, bool receiver) const
 {
 	const size_t ShapeAMaxEdge = points.size();
-	printf(" || ");
+
 	for (int ShapeANormalIndex = 0; ShapeANormalIndex < ShapeAMaxEdge; ++ShapeANormalIndex)
 	{
 		const Vec2 p1 = TransformPoint(points[ShapeANormalIndex]);
@@ -225,6 +225,7 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 		float shapeAMinDistance = 0;
 		float shapeAMaxDistance = shapeAMinDistance;
 
+
 		for (int shapeAPointIndex = 0; shapeAPointIndex < ShapeAMaxEdge; ++shapeAPointIndex)
 		{
 			const Vec2 worldPoint = TransformPoint(points[shapeAPointIndex]);
@@ -240,14 +241,17 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 				shapeAMaxDistance = tempDistance;
 				penPointA = worldPoint;
 			}
-			else if (tempDistance < shapeAMinDistance) shapeAMinDistance = tempDistance;
-
+			else if (tempDistance < shapeAMinDistance)
+			{
+				shapeAMinDistance = tempDistance;
+			}
 		}
 
 		const size_t shapeBMaxEdge = poly.points.size();
 
 		float shapeBMinDistance = 0;
 		float shapeBMaxDistance = shapeBMinDistance;
+
 
 		for (int shapeBPointIndex = 0; shapeBPointIndex < shapeBMaxEdge; ++shapeBPointIndex)
 		{
@@ -261,31 +265,37 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 			{
 				shapeBMinDistance = shapeBMaxDistance = tempDistance;
 				penPointB = worldPoint;
+
 			}
 			else if (tempDistance > shapeBMaxDistance)
 			{
 				shapeBMaxDistance = tempDistance;
 				penPointB = worldPoint;
 			}
-			else if (tempDistance < shapeBMinDistance) shapeBMinDistance = tempDistance;
+			else if (tempDistance < shapeBMinDistance)
+			{
+				shapeBMinDistance = tempDistance;
+			}
 		}
 
 		float penA = shapeAMaxDistance - shapeBMinDistance;
 		float penB = shapeBMaxDistance - shapeAMinDistance;
 
-		float epsilon = 0;
+		
 
-
+		float epsilon = 0.1f;
+		
 		if (penA < penB) epsilon = -0.1f;
-		else if (penB < penA) epsilon = +0.1f;
+		else if (penB < penA) epsilon = 0.1f;
 
-		//HACK TEST
 		if (penA <= 0 || penB <= 0) return false;
 
-
 		const float finalPen = Min(penA, penB);
-		if (finalPen <= colDist + epsilon)
+
+		
+		if (finalPen < colDist + epsilon)
 		{
+
 			colDist = finalPen;
 
 			//std::string str = 
@@ -299,13 +309,12 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 
 				if (receiver)
 				{
-					printf("1");
 					colNormal = normal;
 					colPoint = penPointA - (normal * colDist);
 				}
 				else
 				{
-					printf("2");
+
 
 					colNormal = normal * -1;
 					colPoint = penPointA;
@@ -315,14 +324,14 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 			{
 				if (receiver)
 				{
-					printf("3");
+
 
 					colPoint = penPointB;
 					colNormal = normal * -1.f;
 				}
 				else
 				{
-					printf("4");
+
 					colNormal = normal;
 					colPoint = penPointB - (normal * finalPen);
 				}
@@ -330,7 +339,7 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 
 		}
 	}
-	printf(" || ");
+
 
 	return true;
 }
