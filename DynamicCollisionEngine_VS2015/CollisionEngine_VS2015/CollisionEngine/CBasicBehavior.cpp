@@ -36,11 +36,11 @@ float CBasicBehavior::ApplyCollisionResponse(const SCollision & collision)
 	CPolygonPtr polyA = collision.polyA;
 	CPolygonPtr polyB = collision.polyB;
 
-	Vec2 diffspeed = polyB->speed - polyA->speed;
 
+	Vec2 diffspeed = polyB->speed - polyA->speed;
 	float relativeSpeed = (diffspeed | collision.normal);
 	if (relativeSpeed > 0) return 0;
-
+	/************** SPEED AND POSITION **************/
 	float polyAMass = polyA->GetMass();
 	float polyBMass = polyB->GetMass();
 
@@ -48,10 +48,30 @@ float CBasicBehavior::ApplyCollisionResponse(const SCollision & collision)
 	float polyBInvMass = polyBMass == 0 ? 0.f : 1.f / polyBMass;
 
 	float polyInvMass = (polyAInvMass + polyBInvMass) == 0 ? 1.f : (polyAInvMass + polyBInvMass);
+	
+	/************** ROTATION **************/
+	Vec2 centerToCollisionA = collision.point - polyA->position;
+	Vec2 centerToCollisionB = collision.point - polyB->position;
 
+	float tensorA = polyA->GetInertiaTensor();
+	float tensorB = polyB->GetInertiaTensor();
+
+	float tensorInverseA = tensorA == 0 ? 0.f : 1.f / tensorA;
+	float tensorInverseB = tensorB == 0 ? 0.f : 1.f / tensorB;
+
+	float momentumA = (((centerToCollisionA ^ collision.normal)) * tensorInverseA);
+	float momentumB = (((centerToCollisionB ^ collision.normal)) * tensorInverseB);
+
+	float rotWeightA = (centerToCollisionA.Normalized() * momentumA) | collision.normal;
+	float rotWeightB = (centerToCollisionB.Normalized() * momentumB) | collision.normal;
+
+
+	float finalRotWeight = rotWeightA + rotWeightB;
+
+	/************** IMPULSE **************/
 	float impulse;
 	
-	impulse = (-(BOUNCINESS + 1.f) * relativeSpeed) / polyInvMass;
+	impulse = (-(BOUNCINESS + 1.f) * relativeSpeed) / (polyInvMass + finalRotWeight);
 
 	if (impulse < 0) return 0;
 
@@ -60,9 +80,12 @@ float CBasicBehavior::ApplyCollisionResponse(const SCollision & collision)
 
 	collision.polyA->speed -= collision.normal * (impulse * polyAInvMass);
 	collision.polyA->position -= collision.normal * correction * polyAInvMass;
+	collision.polyA->angularVelocity -= impulse * momentumA;
 
 	collision.polyB->speed += collision.normal * (impulse * polyBInvMass);
 	collision.polyB->position += collision.normal * correction * polyBInvMass;
+	collision.polyB->angularVelocity += impulse * momentumB;
+
 
 	return impulse;
 }

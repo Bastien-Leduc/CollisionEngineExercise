@@ -4,6 +4,9 @@
 #include "InertiaTensor.h"
 
 #include "PhysicEngine.h"
+#include "World.h"
+#include "GlobalVariables.h"
+#include "Renderer.h"
 #include "Collision.h"
 
 CPolygon::CPolygon(size_t index)
@@ -115,6 +118,8 @@ bool	CPolygon::CheckCollision(const CPolygon& poly, SCollision& collision) const
 	collision.distance = FLT_MAX;
 	if (SatCollisionChecker(poly, collision.point, collision.normal, collision.distance, true))
 		return poly.SatCollisionChecker(*this, collision.point, collision.normal, collision.distance, false);
+
+
 	return false;
 }
 
@@ -202,6 +207,7 @@ void CPolygon::BuildLines()
 bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 & colNormal, float & colDist, bool receiver) const
 {
 	const size_t ShapeAMaxEdge = points.size();
+	printf(" || ");
 	for (int ShapeANormalIndex = 0; ShapeANormalIndex < ShapeAMaxEdge; ++ShapeANormalIndex)
 	{
 		const Vec2 p1 = TransformPoint(points[ShapeANormalIndex]);
@@ -224,11 +230,12 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 			const Vec2 worldPoint = TransformPoint(points[shapeAPointIndex]);
 
 			const Vec2 temp = projectionLine.Project(worldPoint);
+			//gVars->pRenderer->DrawLine(normal * -20.f, normal * 20.f, 1.f, 0.f, 0.f);
 
 			const float tempDistance = firstSegment.GetPointDist(temp);
 
 
-			if (tempDistance > shapeAMaxDistance)
+			if (tempDistance >= shapeAMaxDistance)
 			{
 				shapeAMaxDistance = tempDistance;
 				penPointA = worldPoint;
@@ -236,7 +243,6 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 			else if (tempDistance < shapeAMinDistance) shapeAMinDistance = tempDistance;
 
 		}
-
 
 		const size_t shapeBMaxEdge = poly.points.size();
 
@@ -264,25 +270,43 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 			else if (tempDistance < shapeBMinDistance) shapeBMinDistance = tempDistance;
 		}
 
-		const float penA = shapeAMaxDistance - shapeBMinDistance;
-		const float penB = shapeBMaxDistance - shapeAMinDistance;
+		float penA = shapeAMaxDistance - shapeBMinDistance;
+		float penB = shapeBMaxDistance - shapeAMinDistance;
 
+		float epsilon = 0;
+
+
+		if (penA < penB) epsilon = -0.1f;
+		else if (penB < penA) epsilon = +0.1f;
+
+		//HACK TEST
 		if (penA <= 0 || penB <= 0) return false;
 
+
 		const float finalPen = Min(penA, penB);
-		if (finalPen < colDist)
+		if (finalPen <= colDist + epsilon)
 		{
 			colDist = finalPen;
 
-			if (shapeAMaxDistance < shapeBMaxDistance)
+			//std::string str = 
+			//gVars->pRenderer->DisplayText(shapeAMaxDistance);
+
+			if (shapeAMaxDistance < shapeBMaxDistance 
+				&& shapeAMinDistance > shapeBMinDistance 
+				|| shapeAMaxDistance < shapeBMaxDistance 
+				&& shapeAMinDistance < shapeBMinDistance)
 			{
+
 				if (receiver)
 				{
-					colPoint = penPointA - (normal * finalPen);
+					printf("1");
 					colNormal = normal;
+					colPoint = penPointA - (normal * colDist);
 				}
 				else
 				{
+					printf("2");
+
 					colNormal = normal * -1;
 					colPoint = penPointA;
 				}
@@ -291,18 +315,23 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 			{
 				if (receiver)
 				{
-					colPoint = penPointB;
+					printf("3");
 
-					colNormal = normal * -1;
+					colPoint = penPointB;
+					colNormal = normal * -1.f;
 				}
 				else
 				{
+					printf("4");
 					colNormal = normal;
 					colPoint = penPointB - (normal * finalPen);
 				}
 			}
+
 		}
 	}
+	printf(" || ");
+
 	return true;
 }
 
