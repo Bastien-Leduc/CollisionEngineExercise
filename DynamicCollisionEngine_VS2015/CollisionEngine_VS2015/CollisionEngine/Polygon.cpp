@@ -292,14 +292,18 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 
 		const float finalPen = Min(penA, penB);
 
-		
+		if (colDist == finalPen && penA <= penB)
+		{
+			/*colPoint = penPointA;
+			colNormal = normal * -1.f;
+			return true;*/
+		}
+	
+
 		if (finalPen < colDist + epsilon)
 		{
 
 			colDist = finalPen;
-
-			//std::string str = 
-			//gVars->pRenderer->DisplayText(shapeAMaxDistance);
 
 			if (shapeAMaxDistance < shapeBMaxDistance 
 				&& shapeAMinDistance > shapeBMinDistance 

@@ -5,7 +5,7 @@
 #include "World.h"
 
 #define BOUNCINESS 0.f
-#define FRICTION 0.f
+#define FRICTION 1.f
 
 CBasicBehavior::CBasicBehavior()
 {
@@ -56,15 +56,23 @@ float CBasicBehavior::ApplyCollisionResponse(const SCollision & collision)
 	float tensorA = polyA->GetInertiaTensor();
 	float tensorB = polyB->GetInertiaTensor();
 
-	float tensorInverseA = tensorA == 0 ? 0.f : 1.f / tensorA;
-	float tensorInverseB = tensorB == 0 ? 0.f : 1.f / tensorB;
+	float tensorInverseA = tensorA == 0.f ? 0.f : 1.f / tensorA;
+	float tensorInverseB = tensorB == 0.f ? 0.f : 1.f / tensorB;
 
-	float momentumA = (((centerToCollisionA ^ collision.normal)) * tensorInverseA);
-	float momentumB = (((centerToCollisionB ^ collision.normal)) * tensorInverseB);
+	float torqueA = centerToCollisionA ^ collision.normal;
+	float torqueB = centerToCollisionB ^ collision.normal;
 
-	float rotWeightA = (centerToCollisionA.Normalized() * momentumA) | collision.normal;
-	float rotWeightB = (centerToCollisionB.Normalized() * momentumB) | collision.normal;
+	float momentumA = tensorInverseA * torqueA;
+	float momentumB = tensorInverseB * torqueB;
 
+	float rotWeightA = (centerToCollisionA.GetNormal() * momentumA) | collision.normal;
+	float rotWeightB = (centerToCollisionB.GetNormal() * momentumB) | collision.normal;
+
+	Vec2 angSpeedA = polyA->speed + (centerToCollisionA.GetNormal() * polyA->angularVelocity);
+	Vec2 angSpeedB = polyB->speed + (centerToCollisionB.GetNormal() * polyB->angularVelocity);
+
+	Vec2 angSpeedDiff = angSpeedB - angSpeedA;
+	relativeSpeed = angSpeedDiff | collision.normal;
 
 	float finalRotWeight = rotWeightA + rotWeightB;
 
@@ -73,10 +81,10 @@ float CBasicBehavior::ApplyCollisionResponse(const SCollision & collision)
 	
 	impulse = (-(BOUNCINESS + 1.f) * relativeSpeed) / (polyInvMass + finalRotWeight);
 
-	if (impulse < 0) return 0;
+	//if (impulse < 0) return 0;
 
 	float damping = 0.5f;
-	float correction = (collision.distance * damping) / polyInvMass;
+	float correction = collision.distance / polyInvMass * damping;
 
 	collision.polyA->speed -= collision.normal * (impulse * polyAInvMass);
 	collision.polyA->position -= collision.normal * correction * polyAInvMass;
@@ -85,7 +93,6 @@ float CBasicBehavior::ApplyCollisionResponse(const SCollision & collision)
 	collision.polyB->speed += collision.normal * (impulse * polyBInvMass);
 	collision.polyB->position += collision.normal * correction * polyBInvMass;
 	collision.polyB->angularVelocity += impulse * momentumB;
-
 
 	return impulse;
 }
