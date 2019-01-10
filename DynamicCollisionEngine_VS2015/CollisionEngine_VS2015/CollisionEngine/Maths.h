@@ -299,6 +299,13 @@ struct Projection
 		return overlap;
 	}
 
+	bool IsContaining(const Projection& other) const
+	{
+		bool containement = ((minimum < other.minimum && maximum > other.maximum) || (minimum > other.minimum && maximum < other.maximum));
+
+		return containement;
+	}
+
 	float GetOverlapValue(const Projection& other) const
 	{
 		return (Min(maximum, other.maximum) - Max(minimum, other.minimum));

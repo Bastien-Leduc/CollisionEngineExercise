@@ -246,6 +246,15 @@ bool CPolygon::SatCollisionChecker(const CPolygon& poly, Vec2& colPoint, Vec2& c
 
 		float tempPen = shapeProj1.GetOverlapValue(shapeProj2);
 
+		if (shapeProj1.IsContaining(shapeProj2) || shapeProj2.IsContaining(shapeProj1))
+		{
+			float containementMin = abs(shapeProj1.minimum - shapeProj2.minimum);
+			float containementMax = abs(shapeProj1.maximum - shapeProj2.maximum);
+
+			if (containementMin < containementMax) tempPen += containementMin;
+			else tempPen += containementMax;
+		}
+
 		if (tempPen > colDist) continue;
 		
 		colDist = tempPen;
