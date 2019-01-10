@@ -63,6 +63,11 @@ struct Vec2
 		return Vec2(x - rhs.x, y - rhs.y);
 	}
 
+	Vec2 operator-()
+	{
+		return Vec2(-x, -y);
+	}
+
 	Vec2& operator-=(const Vec2& rhs)
 	{
 		x -= rhs.x;
@@ -100,6 +105,11 @@ struct Vec2
 	float operator^(const Vec2& rhs) const
 	{
 		return x * rhs.y - y * rhs.x;
+	}
+
+	bool operator==(const Vec2& rhs) const
+	{
+		return (rhs.x == x && rhs.y == y);
 	}
 
 	bool  IsZero() const
@@ -272,6 +282,28 @@ struct Line
 		start = point;
 		end = point + dir * length;
 	}
+};
+
+struct Projection
+{
+	float minimum;
+	float maximum;
+	
+	Projection(float _min, float _max) : minimum(_min), maximum(_max) {}
+
+	bool IsOverlaping(const Projection& other) const
+	{
+		bool overlap = (other.minimum < maximum && other.maximum > minimum);
+		//bool containement = ((x < other.x && y > other.y) || (x > other.x && y < other.y));
+
+		return overlap;
+	}
+
+	float GetOverlapValue(const Projection& other) const
+	{
+		return (Min(maximum, other.maximum) - Max(minimum, other.minimum));
+	}
+
 };
 
 //struct AABB

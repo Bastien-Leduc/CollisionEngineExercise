@@ -123,6 +123,33 @@ bool	CPolygon::CheckCollision(const CPolygon& poly, SCollision& collision) const
 	return false;
 }
 
+Vec2* CPolygon::GetSATAxis() const
+{
+	const size_t size = points.size();
+	Vec2* axis = new Vec2[size];
+	
+	for (size_t index = 0; index < size; ++index)
+		axis[index] = (TransformPoint(points[(index + 1) % size]) - TransformPoint(points[index])).GetNormal().Normalized();
+
+	return axis;
+}
+
+Projection CPolygon::Project(const Vec2& axis) const
+{
+	float min = axis | TransformPoint(m_lines[0].point);
+	float max = min;
+
+	size_t size = points.size();
+	for (size_t index = 0; index < size; ++index)
+	{
+		float projResult = axis | TransformPoint(m_lines[index].point);
+		if (projResult < min) min = projResult;
+		if (projResult > max) max = projResult;
+	}
+
+	return Projection(min, max);
+}
+
 
 //void CPolygon::UpdateAABB()
 //{
@@ -181,7 +208,6 @@ void CPolygon::BindBuffers()
 	}
 }
 
-
 void CPolygon::DestroyBuffers()
 {
 	if (m_vertexBufferId != 0)
@@ -204,9 +230,58 @@ void CPolygon::BuildLines()
 	}
 }
 
-bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 & colNormal, float & colDist, bool receiver) const
+bool CPolygon::SatCollisionChecker(const CPolygon& poly, Vec2& colPoint, Vec2& colNormal, float& colDist, bool receiver) const
 {
-	const size_t ShapeAMaxEdge = points.size();
+	Vec2* shape1Axies = GetSATAxis();
+	size_t size = points.size();
+
+	for (size_t index = 0; index < size; ++index)
+	{
+		//gVars->pRenderer->DrawLine(shape1Axies[index], shape1Axies[index]*2.f, 1.f, 0.f, 0.f);
+		Vec2 axis = shape1Axies[index];
+		Projection shapeProj1 = Project(axis);
+		Projection shapeProj2 = poly.Project(axis);
+
+		if (!shapeProj1.IsOverlaping(shapeProj2)) return false;
+
+		float tempPen = shapeProj1.GetOverlapValue(shapeProj2);
+
+		if (tempPen > colDist) continue;
+		
+		colDist = tempPen;
+		colNormal = axis;
+	}
+	
+	delete[] shape1Axies;
+
+	Vec2* shape2Axies = poly.GetSATAxis();
+	size = poly.points.size();
+
+	for (size_t index = 0; index < size; ++index)
+	{
+		//gVars->pRenderer->DrawLine(shape2Axies[index], shape2Axies[index] * 5.f, 0.f, 0.f, 1.f);
+		Vec2 axis = shape2Axies[index];
+		Projection shapeProj1 = Project(axis);
+		Projection shapeProj2 = Project(axis);
+
+		if (!shapeProj1.IsOverlaping(shapeProj2)) return false;
+
+		float tempPen = shapeProj1.GetOverlapValue(shapeProj2);
+
+		if (tempPen > colDist) continue;
+
+		colDist = tempPen;
+		colNormal = axis;
+	}
+
+	delete[] shape2Axies;
+
+	Vec2 dist = (poly.position - position).Normalized();
+	if ((dist | colNormal) < 0.f)
+		colNormal *= -1.f;
+
+	return true;
+	/*const size_t ShapeAMaxEdge = points.size();
 
 	for (int ShapeANormalIndex = 0; ShapeANormalIndex < ShapeAMaxEdge; ++ShapeANormalIndex)
 	{
@@ -216,6 +291,10 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 		Vec2 direction = (p2 - p1).Normalized();
 		const Vec2 normal = direction.GetNormal();
 
+		if (colNormal == normal)
+		{
+			continue;
+		}
 
 		Line projectionLine(p1, normal);
 
@@ -281,8 +360,6 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 		float penA = shapeAMaxDistance - shapeBMinDistance;
 		float penB = shapeBMaxDistance - shapeAMinDistance;
 
-		
-
 		float epsilon = 0.1f;
 		
 		if (penA < penB) epsilon = -0.1f;
@@ -291,14 +368,6 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 		if (penA <= 0 || penB <= 0) return false;
 
 		const float finalPen = Min(penA, penB);
-
-		if (colDist == finalPen && penA <= penB)
-		{
-			/*colPoint = penPointA;
-			colNormal = normal * -1.f;
-			return true;*/
-		}
-	
 
 		if (finalPen < colDist + epsilon)
 		{
@@ -318,8 +387,6 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 				}
 				else
 				{
-
-
 					colNormal = normal * -1;
 					colPoint = penPointA;
 				}
@@ -328,14 +395,11 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 			{
 				if (receiver)
 				{
-
-
 					colPoint = penPointB;
 					colNormal = normal * -1.f;
 				}
 				else
 				{
-
 					colNormal = normal;
 					colPoint = penPointB - (normal * finalPen);
 				}
@@ -345,7 +409,7 @@ bool CPolygon::SatCollisionChecker(const CPolygon & poly, Vec2 & colPoint, Vec2 
 	}
 
 
-	return true;
+	return true;*/
 }
 
 void CPolygon::ComputeArea()

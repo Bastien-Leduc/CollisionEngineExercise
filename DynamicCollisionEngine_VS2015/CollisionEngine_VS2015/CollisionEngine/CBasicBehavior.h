@@ -10,7 +10,8 @@ public:
 	virtual void Update(float frameTime);
 
 private:
-
+	void GenerateManifold(const SCollision& collision);
+	Vec2* GetBestEdges(Vec2& collisionNormal, CPolygonPtr polyA, CPolygonPtr polyB);
 	float ApplyCollisionResponse(const SCollision& collision);
 	void ApplyFriction(const SCollision& collision, float impulse);
 

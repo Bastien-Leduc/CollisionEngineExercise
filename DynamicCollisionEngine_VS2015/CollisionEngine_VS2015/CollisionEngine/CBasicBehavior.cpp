@@ -5,7 +5,7 @@
 #include "World.h"
 
 #define BOUNCINESS 0.f
-#define FRICTION 1.f
+#define FRICTION 0.f
 
 CBasicBehavior::CBasicBehavior()
 {
@@ -31,7 +31,24 @@ void CBasicBehavior::Update(float frameTime)
 	});
 }
 
-float CBasicBehavior::ApplyCollisionResponse(const SCollision & collision)
+void CBasicBehavior::GenerateManifold(const SCollision& collision)
+{
+
+}
+
+Vec2* CBasicBehavior::GetBestEdges(Vec2& collisionNormal, CPolygonPtr polyA, CPolygonPtr polyB)
+{
+	size_t pointCount = polyA->points.size();
+	Vec2 bestPoint;
+	
+	for (size_t polyPointIndex = 0; polyPointIndex < pointCount; ++polyPointIndex)
+	{
+
+	}
+	return nullptr;
+}
+
+float CBasicBehavior::ApplyCollisionResponse(const SCollision& collision)
 {
 	CPolygonPtr polyA = collision.polyA;
 	CPolygonPtr polyB = collision.polyB;
@@ -40,6 +57,7 @@ float CBasicBehavior::ApplyCollisionResponse(const SCollision & collision)
 	Vec2 diffspeed = polyB->speed - polyA->speed;
 	float relativeSpeed = (diffspeed | collision.normal);
 	if (relativeSpeed > 0) return 0;
+
 	/************** SPEED AND POSITION **************/
 	float polyAMass = polyA->GetMass();
 	float polyBMass = polyB->GetMass();

@@ -35,16 +35,12 @@ public:
 	// if point is outside then returned distance is negative (and doesn't make sense)
 	bool				IsPointInside(const Vec2& point) const;
 
-
-
 	// If line intersect polygon, colDist is the penetration distance, and colPoint most penetrating point of poly inside the line
 	bool				IsLineIntersectingPolygon(const Line& line, Vec2& colPoint, float& colDist) const;
 	bool				CheckCollision(const CPolygon& poly, struct SCollision& collision) const;
+	Vec2*				GetSATAxis() const;
+	Projection			Project(const Vec2& axis) const;
 
-
-
-
-//	void				UpdateAABB();
 
 	float				GetMass() const;
 	float				GetInertiaTensor() const;
@@ -57,8 +53,6 @@ public:
 	float				angularVelocity = 0.0f;
 	Vec2				forces;
 	float				torques = 0.0f;
-
-
 
 
 private:
