@@ -134,7 +134,7 @@ Vec2* CPolygon::GetSATAxis() const
 	return axis;
 }
 
-Projection CPolygon::Project(const Vec2& axis) const
+SProjection CPolygon::Project(const Vec2& axis) const
 {
 	float min = axis | TransformPoint(m_lines[0].point);
 	float max = min;
@@ -147,7 +147,7 @@ Projection CPolygon::Project(const Vec2& axis) const
 		if (projResult > max) max = projResult;
 	}
 
-	return Projection(min, max);
+	return SProjection(min, max);
 }
 
 
@@ -239,8 +239,8 @@ bool CPolygon::SatCollisionChecker(const CPolygon& poly, Vec2& colPoint, Vec2& c
 	{
 		//gVars->pRenderer->DrawLine(shape1Axies[index], shape1Axies[index]*2.f, 1.f, 0.f, 0.f);
 		Vec2 axis = shape1Axies[index];
-		Projection shapeProj1 = Project(axis);
-		Projection shapeProj2 = poly.Project(axis);
+		SProjection shapeProj1 = Project(axis);
+		SProjection shapeProj2 = poly.Project(axis);
 
 		if (!shapeProj1.IsOverlaping(shapeProj2)) return false;
 
@@ -270,8 +270,8 @@ bool CPolygon::SatCollisionChecker(const CPolygon& poly, Vec2& colPoint, Vec2& c
 	{
 		//gVars->pRenderer->DrawLine(shape2Axies[index], shape2Axies[index] * 5.f, 0.f, 0.f, 1.f);
 		Vec2 axis = shape2Axies[index];
-		Projection shapeProj1 = Project(axis);
-		Projection shapeProj2 = Project(axis);
+		SProjection shapeProj1 = Project(axis);
+		SProjection shapeProj2 = Project(axis);
 
 		if (!shapeProj1.IsOverlaping(shapeProj2)) return false;
 
@@ -285,7 +285,7 @@ bool CPolygon::SatCollisionChecker(const CPolygon& poly, Vec2& colPoint, Vec2& c
 
 	delete[] shape2Axies;
 
-	Vec2 dist = (poly.position - position).Normalized();
+	Vec2 dist = (position - poly.position).Normalized();
 	if ((dist | colNormal) < 0.f)
 		colNormal *= -1.f;
 

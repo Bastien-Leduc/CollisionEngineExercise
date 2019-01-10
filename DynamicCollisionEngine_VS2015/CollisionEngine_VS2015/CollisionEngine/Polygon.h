@@ -38,8 +38,9 @@ public:
 	// If line intersect polygon, colDist is the penetration distance, and colPoint most penetrating point of poly inside the line
 	bool				IsLineIntersectingPolygon(const Line& line, Vec2& colPoint, float& colDist) const;
 	bool				CheckCollision(const CPolygon& poly, struct SCollision& collision) const;
+	
 	Vec2*				GetSATAxis() const;
-	Projection			Project(const Vec2& axis) const;
+	SProjection			Project(const Vec2& axis) const;
 
 
 	float				GetMass() const;

@@ -26,26 +26,53 @@ void CBasicBehavior::Update(float frameTime)
 {
 	gVars->pPhysicEngine->ForEachCollision([&](const SCollision& collision)
 	{
+		GenerateManifold(collision);
 		float lastImpulse = ApplyCollisionResponse(collision);
 		ApplyFriction(collision, lastImpulse);
 	});
 }
 
-void CBasicBehavior::GenerateManifold(const SCollision& collision)
+void CBasicBehavior::GenerateManifold(const SCollision& collision, CPolygonPtr polyA, CPolygonPtr polyB)
 {
+	SCollisionPointData bestPointA = GetBestEdge(collision.normal, polyA);
+	SCollisionPointData bestPointB = GetBestEdge(collision.normal, polyB);
+
 
 }
 
-Vec2* CBasicBehavior::GetBestEdges(Vec2& collisionNormal, CPolygonPtr polyA, CPolygonPtr polyB)
+SCollisionPointData CBasicBehavior::GetBestEdge(const Vec2& collisionNormal, CPolygonPtr poly) const
 {
-	size_t pointCount = polyA->points.size();
-	Vec2 bestPoint;
-	
-	for (size_t polyPointIndex = 0; polyPointIndex < pointCount; ++polyPointIndex)
-	{
+	float maxProjectionValue = -FLT_MAX;
+	size_t bestPointIndex;
 
+	size_t verticesCount = poly->points.size();
+	for (size_t index = 0; index < verticesCount; ++index)
+	{
+		Vec2 currentPoint = poly->TransformPoint(poly->points[verticesCount]);
+		float projection = collisionNormal | currentPoint;
+		if (projection < maxProjectionValue) continue;
+		maxProjectionValue = projection;
+		bestPointIndex = index;
 	}
-	return nullptr;
+
+	Vec2 bestPoint = poly->points[bestPointIndex];
+	Vec2 leftPoint = poly->points[(bestPointIndex + 1) % verticesCount];
+	Vec2 rightPoint = poly->points[(bestPointIndex - 1) % verticesCount];
+
+	Vec2 leftSegment = bestPoint - leftPoint;
+	Vec2 rightSegment = bestPoint - rightPoint;	
+
+	leftSegment.Normalize();
+	rightSegment.Normalize();
+
+	if ((rightSegment | collisionNormal) <= (leftSegment | collisionNormal))
+	{
+		return SCollisionPointData(bestPoint, rightPoint, leftPoint, rightSegment);
+	}
+	else
+	{
+		return SCollisionPointData(bestPoint, rightPoint, leftPoint, leftSegment);
+	}
 }
 
 float CBasicBehavior::ApplyCollisionResponse(const SCollision& collision)

@@ -157,6 +157,19 @@ struct Vec2
 		float angle = RAD2DEG(acosf(cosAngle)) * Sign(*this ^ to);
 		return angle;
 	}
+
+	void Rotate(float angle)
+	{
+		float sinRad = sinf(DEG2RAD(angle));
+		float cosRad = cosf(DEG2RAD(angle));
+
+		float xCopy = x;
+		float yCopy = y;
+
+
+		x = (cosRad * xCopy) - (sinRad * yCopy);
+		y = (sinRad * xCopy) + (cosRad * yCopy);
+	}
 };
 
 Vec2 minv(const Vec2& a, const Vec2& b);
@@ -284,14 +297,14 @@ struct Line
 	}
 };
 
-struct Projection
+struct SProjection
 {
 	float minimum;
 	float maximum;
 	
-	Projection(float _min, float _max) : minimum(_min), maximum(_max) {}
+	SProjection(float _min, float _max) : minimum(_min), maximum(_max) {}
 
-	bool IsOverlaping(const Projection& other) const
+	bool IsOverlaping(const SProjection& other) const
 	{
 		bool overlap = (other.minimum < maximum && other.maximum > minimum);
 		//bool containement = ((x < other.x && y > other.y) || (x > other.x && y < other.y));
@@ -299,18 +312,31 @@ struct Projection
 		return overlap;
 	}
 
-	bool IsContaining(const Projection& other) const
+	bool IsContaining(const SProjection& other) const
 	{
 		bool containement = ((minimum < other.minimum && maximum > other.maximum) || (minimum > other.minimum && maximum < other.maximum));
 
 		return containement;
 	}
 
-	float GetOverlapValue(const Projection& other) const
+	float GetOverlapValue(const SProjection& other) const
 	{
 		return (Min(maximum, other.maximum) - Max(minimum, other.minimum));
 	}
 
+};
+
+struct SCollisionPointData
+{
+	Vec2 collisionPoint;
+	Vec2 rightPoint;
+	Vec2 leftPoint;
+	Vec2 collisionSegment;
+
+	SCollisionPointData(Vec2 _colPoint, Vec2 _rightPoint, Vec2 _leftPoint, Vec2 _segment) : collisionPoint(_colPoint),
+		rightPoint(_rightPoint),
+		leftPoint(_leftPoint),
+		collisionSegment(_segment) {}
 };
 
 //struct AABB

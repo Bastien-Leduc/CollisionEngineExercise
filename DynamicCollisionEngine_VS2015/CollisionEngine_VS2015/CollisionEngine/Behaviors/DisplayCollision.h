@@ -33,7 +33,18 @@ private:
 		gVars->pRenderer->DisplayTextWorld("collision point", lastCollision.point);
 		gVars->pRenderer->DisplayText("Collision distance : " + std::to_string(lastCollision.distance), 50, 50);
 
-		gVars->pRenderer->DrawLine(lastCollision.point, lastCollision.point + lastCollision.normal * lastCollision.distance, 0.0f, 1.0f, 0.0f);
+		Vec2 arrowBase = lastCollision.point;
+		Vec2 arrowEnd = lastCollision.point + lastCollision.normal * lastCollision.distance;
+
+		Vec2 branch = -lastCollision.normal;
+		branch.Rotate(45.f);
+
+		gVars->pRenderer->DrawLine(arrowBase, arrowEnd, 0.0f, 0.0f, 1.0f);
+		gVars->pRenderer->DrawLine(arrowEnd, arrowEnd + branch * 0.7f, 0.0f, 0.0f, 1.0f);
+		
+		branch.Rotate(-90.f);
+		gVars->pRenderer->DrawLine(arrowEnd, arrowEnd + branch * 0.7f, 0.0f, 0.0f, 1.0f);
+
 	}
 };
 
