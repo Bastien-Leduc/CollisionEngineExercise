@@ -25,11 +25,12 @@ private:
 	{
 		gVars->pPhysicEngine->Activate(true);
 		collided = polyA->CheckCollision(*polyB, lastCollision);
+		
 	}
 
 	virtual void DrawGizmos()
 	{
-		if (!collided) return;
+		/*if (!collided) return;
 		gVars->pRenderer->DisplayTextWorld("collision point", lastCollision.point);
 		gVars->pRenderer->DisplayText("Collision distance : " + std::to_string(lastCollision.distance), 50, 50);
 
@@ -43,7 +44,7 @@ private:
 		gVars->pRenderer->DrawLine(arrowEnd, arrowEnd + branch * 0.7f, 0.0f, 0.0f, 1.0f);
 		
 		branch.Rotate(-90.f);
-		gVars->pRenderer->DrawLine(arrowEnd, arrowEnd + branch * 0.7f, 0.0f, 0.0f, 1.0f);
+		gVars->pRenderer->DrawLine(arrowEnd, arrowEnd + branch * 0.7f, 0.0f, 0.0f, 1.0f);*/
 
 	}
 };

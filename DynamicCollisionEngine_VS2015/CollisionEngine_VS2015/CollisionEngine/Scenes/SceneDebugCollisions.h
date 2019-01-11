@@ -4,6 +4,8 @@
 #include "BaseScene.h"
 
 #include "Behaviors/DisplayCollision.h"
+#include "CBasicBehavior.h"
+
 
 class CSceneDebugCollisions : public CBaseScene
 {
@@ -30,6 +32,8 @@ private:
 		CDisplayCollision* displayCollision = static_cast<CDisplayCollision*>(gVars->pWorld->AddBehavior<CDisplayCollision>(nullptr).get());
 		displayCollision->polyA = firstPoly;
 		displayCollision->polyB = secondPoly;
+
+		gVars->pWorld->AddBehavior<CBasicBehavior>(nullptr);
 
 		gVars->pPhysicEngine->Activate(true);
 	}

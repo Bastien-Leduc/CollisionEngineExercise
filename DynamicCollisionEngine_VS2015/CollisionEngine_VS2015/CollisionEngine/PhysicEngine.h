@@ -25,7 +25,7 @@ public:
 	template<typename TFunctor>
 	void	ForEachCollision(TFunctor functor)
 	{
-		for (const SCollision& collision : m_collidingPairs)
+		for (SCollision& collision : m_collidingPairs)
 		{
 			functor(collision);
 		}
