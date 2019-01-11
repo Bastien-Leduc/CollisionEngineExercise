@@ -9,3 +9,4 @@ Bugs:
 	- Some rotation are incorect
 		- This is due to a collision point wrongly calculated.
 		- Because of that, some shape will rotate on itself, creating a Guauss-Canon phenomena and launching at high speed outside of the app view.
+		- This is due to the point clipping eliminating all the potential collision points because the clipping point function detects that all the points are behind the collision edge.
