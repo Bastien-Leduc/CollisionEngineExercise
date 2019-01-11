@@ -172,6 +172,11 @@ struct Vec2
 	}
 };
 
+/*Vec2 operator-(const Vec2& param)
+{
+	return Vec2(-param.x, -param.y);
+}*/
+
 Vec2 minv(const Vec2& a, const Vec2& b);
 Vec2 maxv(const Vec2& a, const Vec2& b);
 
@@ -326,17 +331,18 @@ struct SProjection
 
 };
 
-struct SCollisionPointData
+struct SCollisionSegmentData
 {
-	Vec2 collisionPoint;
-	Vec2 rightPoint;
-	Vec2 leftPoint;
-	Vec2 collisionSegment;
+	Vec2 collisionSegmentStart;
+	Vec2 collisionSegmentEnd;
+	Vec2 collisionSegmentDir;
 
-	SCollisionPointData(Vec2 _colPoint, Vec2 _rightPoint, Vec2 _leftPoint, Vec2 _segment) : collisionPoint(_colPoint),
-		rightPoint(_rightPoint),
-		leftPoint(_leftPoint),
-		collisionSegment(_segment) {}
+	SCollisionSegmentData() = default;
+
+	SCollisionSegmentData(Vec2 _collisionSegmentStart, Vec2 _collisionSegmentEnd, Vec2 _collisionSegmentDir) 
+		: collisionSegmentStart(_collisionSegmentStart),
+		collisionSegmentEnd(_collisionSegmentEnd),
+		collisionSegmentDir(_collisionSegmentDir) {}
 };
 
 //struct AABB
