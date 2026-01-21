@@ -5,7 +5,7 @@
 
 #include "Timer.h"
 #include "Maths.h"
-
+#include <string>
 
 enum class FPS : int
 {
